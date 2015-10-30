@@ -33,10 +33,11 @@ function getEspecialidades() {
 function addDoctor() {
 	$request = \Slim\Slim::getInstance()->request();
 	$doc = json_decode($request->getBody());
-	$sql = "INSERT INTO doctor (doctor, imgPerfil, password, nombre, servicios, telefono, direccion, correo, foto1, foto2, foto3) VALUES (:doctor, :imgPerfil, :password, :nombre, :servicios, :telefono, :direccion, :correo, :foto1, :foto2, :foto3)";
+	$sql = "INSERT INTO doctor (idEspecialidad, doctor, imgPerfil, password, nombre, servicios, telefono, direccion, correo, foto1, foto2, foto3) VALUES (:idEspecialidad, :doctor, :imgPerfil, :password, :nombre, :servicios, :telefono, :direccion, :correo, :foto1, :foto2, :foto3)";
 	try {
 		$db = getConnection(); 
 		$stmt = $db->prepare($sql);
+		$stmt->bindParam("idEspecialidad", $doc->idEspecialidad);
 		$stmt->bindParam("doctor", $doc->doctor);
 		$stmt->bindParam("imgPerfil", $doc->imgPerfil);
 		$stmt->bindParam("password", $doc->password);
@@ -52,7 +53,8 @@ function addDoctor() {
 		$db = null;
 		echo json_encode($doc);
 	} catch(PDOException $e) {
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
 	}
 }
 
