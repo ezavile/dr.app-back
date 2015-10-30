@@ -37,7 +37,7 @@ function addDoctor() {
 	try {
 		$db = getConnection(); 
 		$stmt = $db->prepare($sql);
-		$stmt->bindParam("doctor", $doc->usuario);
+		$stmt->bindParam("doctor", $doc->doctor);
 		$stmt->bindParam("imgPerfil", $doc->imgPerfil);
 		$stmt->bindParam("password", $doc->password);
 		$stmt->bindParam("nombre", $doc->nombre);
