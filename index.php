@@ -27,9 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 function upload(){
 	if ( !empty( $_FILES ) ) {
 		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
-		$uploadPath = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $_FILES[ 'file' ][ 'name' ];
+		$url = 'uploads' . DIRECTORY_SEPARATOR . $_FILES[ 'file' ][ 'name' ];
+		$uploadPath = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . $url;
 		move_uploaded_file( $tempPath, $uploadPath );
-		$answer = array( 'url' => $uploadPath);
+		$answer = array( 'url' => 'http://localhost/Dr.App/back/' . $url);
 		echo json_encode($answer);
 	} else {
 		$answer = array( 'error' => 'No se subio la imagen correctamente');
