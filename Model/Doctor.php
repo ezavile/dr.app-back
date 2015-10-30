@@ -33,7 +33,7 @@ function getEspecialidades() {
 function addDoctor() {
 	$request = \Slim\Slim::getInstance()->request();
 	$doc = json_decode($request->getBody());
-	$sql = "INSERT INTO doctor (idEspecialidad, doctor, imgPerfil, password, nombre, servicios, telefono, direccion, correo, foto1, foto2, foto3) VALUES (:idEspecialidad, :doctor, :imgPerfil, :password, :nombre, :servicios, :telefono, :direccion, :correo, :foto1, :foto2, :foto3)";
+	$sql = "INSERT INTO doctor (idEspecialidad, doctor, imgPerfil, password, nombre, servicios, telefono, direccion, coordenadas, correo, foto1, foto2, foto3) VALUES (:idEspecialidad, :doctor, :imgPerfil, :password, :nombre, :servicios, :telefono, :direccion, :coordenadas, :correo, :foto1, :foto2, :foto3)";
 	try {
 		$db = getConnection(); 
 		$stmt = $db->prepare($sql);
@@ -45,6 +45,7 @@ function addDoctor() {
 		$stmt->bindParam("servicios", $doc->servicios);
 		$stmt->bindParam("telefono", $doc->telefono);
 		$stmt->bindParam("direccion", $doc->direccion);
+		$stmt->bindParam("coordenadas", $doc->coordenadas);
 		$stmt->bindParam("correo", $doc->correo);
 		$stmt->bindParam("foto1", $doc->foto1);
 		$stmt->bindParam("foto2", $doc->foto2);
