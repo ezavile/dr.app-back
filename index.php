@@ -24,8 +24,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
         header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
 }
 
+function upload(){
+	var_dump($_FILES);
+	if ( !empty( $_FILES ) ) {
+		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
+		$uploadPath = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $_FILES[ 'file' ][ 'name' ];
+		move_uploaded_file( $tempPath, $uploadPath );
+		$answer = array( 'url' => $uploadPath);
+		echo json_encode($answer);
+	} else {
+		$answer = array( 'error' => 'No se subio la imagen correctamente');
+		echo json_encode($answer);
+	}
+}
 
 $app->post('/doctor', 'addDoctor');
+$app->post('/upload', 'upload');
 $app->get('/doctores', 'getDoctores');
 
 $app->run();
