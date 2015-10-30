@@ -41,6 +41,7 @@ function upload(){
 $app->post('/doctor', 'addDoctor');
 $app->post('/upload', 'upload');
 $app->get('/doctores', 'getDoctores');
+$app->get('/especialidades', 'getEspecialidades');
 
 $app->run();
 

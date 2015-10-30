@@ -15,6 +15,20 @@ function getDoctores() {
 	}
 }
 
+function getEspecialidades() { 
+	$sql_query = "SELECT * FROM especialidades";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$dbCon = null;
+		echo json_encode($data);
+	} 
+	catch(PDOException $e) {
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+}
+
 
 function addDoctor() {
 	$request = \Slim\Slim::getInstance()->request();
