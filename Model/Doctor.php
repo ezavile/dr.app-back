@@ -1,5 +1,4 @@
 <?php
-require 'Config/db.php';
 
 function getDoctores() { 
 	$sql_query = "SELECT * FROM doctor";
