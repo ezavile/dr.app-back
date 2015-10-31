@@ -51,7 +51,7 @@ $app->post('/paciente', 'addPaciente');
 //Doctor
 $app->post('/doctor', 'addDoctor');
 $app->get('/doctores', 'getDoctores');
-$app->post('/DoctoresByEspecialidad', 'DoctoresByEspecialidad');
+$app->post('/doctoresByEspecialidad', 'doctoresByEspecialidad');
 
 $app->run();
 

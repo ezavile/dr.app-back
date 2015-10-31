@@ -62,7 +62,7 @@ function addDoctor() {
 
 
 
-function DoctoresByEspecialidad() {
+function doctoresByEspecialidad() {
 	$request = \Slim\Slim::getInstance()->request();
 	$especialidad = json_decode($request->getBody());
 
