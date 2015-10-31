@@ -41,12 +41,17 @@ function upload(){
 	}
 }
 
-$app->post('/login', 'login');
-$app->post('/doctor', 'addDoctor');
-$app->post('/paciente', 'addPaciente');
 $app->post('/upload', 'upload');
-$app->get('/doctores', 'getDoctores');
+$app->post('/login', 'login');
 $app->get('/especialidades', 'getEspecialidades');
+
+//Paciente
+$app->post('/paciente', 'addPaciente');
+
+//Doctor
+$app->post('/doctor', 'addDoctor');
+$app->get('/doctores', 'getDoctores');
+$app->post('/DoctoresByEspecialidad', 'DoctoresByEspecialidad');
 
 $app->run();
 

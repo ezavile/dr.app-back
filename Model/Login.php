@@ -12,7 +12,8 @@ function login() {
 		$dbCon = null;
 	} 
 	catch(PDOException $e) {
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
 	}
 
 	$sql_query = "SELECT * FROM doctor WHERE doctor = '$usuario->usuario' AND password = '$usuario->password'";
