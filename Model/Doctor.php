@@ -10,7 +10,8 @@ function getDoctores() {
 		echo json_encode($data);
 	} 
 	catch(PDOException $e) {
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
 	}
 }
 
@@ -24,7 +25,8 @@ function getEspecialidades() {
 		echo json_encode($data);
 	} 
 	catch(PDOException $e) {
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
 	}
 }
 

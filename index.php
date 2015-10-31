@@ -3,6 +3,7 @@ require 'Slim/Slim.php';
 require 'Config/db.php';
 require 'Model/Doctor.php';
 require 'Model/Paciente.php';
+require 'Model/Login.php';
 
 
 /* Register autoloader and instantiate Slim */
@@ -40,6 +41,7 @@ function upload(){
 	}
 }
 
+$app->post('/login', 'login');
 $app->post('/doctor', 'addDoctor');
 $app->post('/paciente', 'addPaciente');
 $app->post('/upload', 'upload');
