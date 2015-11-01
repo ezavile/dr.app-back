@@ -66,12 +66,18 @@ function doctoresByEspecialidad() {
 	$request = \Slim\Slim::getInstance()->request();
 	$especialidad = json_decode($request->getBody());
 
-	$sql_query = "SELECT * FROM doctor WHERE idEspecialidad = '$especialidad->idEspecialidad'";
+	$sql_query = "SELECT * FROM doctor, especialidades WHERE doctor.idEspecialidad = especialidades.idEspecialidad AND doctor.idEspecialidad = '$especialidad->idEspecialidad'";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
 		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$dbCon = null;
+		foreach ($data as $doc) {
+			$especialidad = array('idEspecialidad' => $doc->especialidad, 'especialidad' => $doc->especialidad, 'enfermedadesAsociadas' => $doc->enfermedadesAsociadas);
+			$doc->especialidad = $especialidad;
+			unset($doc->idEspecialidad);
+			unset($doc->enfermedadesAsociadas);
+		}
 		echo json_encode($data);
 	} 
 	catch(PDOException $e) {
