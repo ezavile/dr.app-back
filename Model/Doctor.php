@@ -59,18 +59,61 @@ function addDoctor() {
 		echo json_encode($answer);
 	}
 }
-
+// obtiene info general, comentarios, info de los pacientes
 function doctorById(){
 	$request = \Slim\Slim::getInstance()->request();
 	$doc = json_decode($request->getBody());
 
-	$sql_query = "SELECT * FROM doctor WHERE doctor = '$doc->doctor'";
+	$sql_query = 	"SELECT 
+						doctor.doctor as doctor, 
+						doctor.nombre as nombre, 
+						doctor.imgPerfil as imgPerfil, 
+						doctor.servicios as servicios, 
+						doctor.telefono as telefono, 
+						doctor.direccion as direccion, 
+						doctor.correo as correo, 
+						doctor.foto1 as foto1, 
+						doctor.foto2 as foto2, 
+						doctor.foto3 as foto3, 
+						doctor.coordenadas as coordenadas, 
+						doctor_comentarios.idComentario as DoctorComentarios_idComentario, 
+						doctor_comentarios.paciente as DoctorComentarios_paciente, 
+						doctor_comentarios.fecha as DoctorComentarios_fecha, 
+						doctor_comentarios.comentario as DoctorComentarios_comentario,
+						paciente.nombre as PacienteNombre
+					FROM 
+						doctor, 
+						doctor_comentarios,
+						paciente
+					WHERE 
+						doctor.doctor = doctor_comentarios.doctor
+						AND
+						doctor_comentarios.paciente = paciente.paciente
+						AND 
+						doctor.doctor = '$doc->doctor'";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
 		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$dbCon = null;
-		echo json_encode($data);
+		foreach ($data as $doc) {
+			$comentarios = array(
+									'idComentario' => $doc->DoctorComentarios_idComentario, 
+									'paciente' => array(
+														'paciente' => $doc->DoctorComentarios_paciente,
+														'nombre' => $doc->PacienteNombre
+														), 
+									'fecha' => $doc->DoctorComentarios_fecha, 
+									'comentario' => $doc->DoctorComentarios_comentario
+								);
+			$doc->comentarios = $comentarios;
+			unset($doc->DoctorComentarios_idComentario);
+			unset($doc->DoctorComentarios_paciente);
+			unset($doc->PacienteNombre);
+			unset($doc->DoctorComentarios_fecha);
+			unset($doc->DoctorComentarios_comentario);
+		}
+		echo json_encode($data[0]);
 	} 
 	catch(PDOException $e) {
 		$answer = array( 'error' =>  $e->getMessage());
