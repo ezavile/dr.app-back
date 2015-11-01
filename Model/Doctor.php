@@ -91,7 +91,9 @@ function doctorById(){
 						AND
 						doctor_comentarios.paciente = paciente.paciente
 						AND 
-						doctor.doctor = '$doc->doctor'";
+						doctor.doctor = '$doc->doctor'
+					ORDER BY
+						doctor_comentarios.fecha desc";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
