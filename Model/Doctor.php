@@ -60,7 +60,23 @@ function addDoctor() {
 	}
 }
 
+function doctorById(){
+	$request = \Slim\Slim::getInstance()->request();
+	$doc = json_decode($request->getBody());
 
+	$sql_query = "SELECT * FROM doctor WHERE doctor = '$doc->doctor'";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$dbCon = null;
+		echo json_encode($data);
+	} 
+	catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
 
 function doctoresByEspecialidad() {
 	$request = \Slim\Slim::getInstance()->request();
