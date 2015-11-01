@@ -80,7 +80,8 @@ function doctorById(){
 						doctor_comentarios.paciente as DoctorComentarios_paciente, 
 						doctor_comentarios.fecha as DoctorComentarios_fecha, 
 						doctor_comentarios.comentario as DoctorComentarios_comentario,
-						paciente.nombre as PacienteNombre
+						paciente.nombre as PacienteNombre,
+						paciente.imgPerfil as PacienteImgPerfil
 					FROM 
 						doctor, 
 						doctor_comentarios,
@@ -102,7 +103,8 @@ function doctorById(){
 									'idComentario' => $doc->DoctorComentarios_idComentario, 
 									'paciente' => array(
 														'paciente' => $doc->DoctorComentarios_paciente,
-														'nombre' => $doc->PacienteNombre
+														'nombre' => $doc->PacienteNombre,
+														'imgPerfil' => $doc->PacienteImgPerfil
 														), 
 									'fecha' => $doc->DoctorComentarios_fecha, 
 									'comentario' => $doc->DoctorComentarios_comentario
@@ -113,6 +115,7 @@ function doctorById(){
 		unset($doctor->DoctorComentarios_idComentario);
 		unset($doctor->DoctorComentarios_paciente);
 		unset($doctor->PacienteNombre);
+		unset($doctor->PacienteImgPerfil);
 		unset($doctor->DoctorComentarios_fecha);
 		unset($doctor->DoctorComentarios_comentario);
 		echo json_encode($doctor);
