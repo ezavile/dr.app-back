@@ -96,8 +96,9 @@ function doctorById(){
 		$stmt   = $dbCon->query($sql_query);
 		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$dbCon = null;
+		$comentarios = array();
 		foreach ($data as $doc) {
-			$comentarios = array(
+			array_push($comentarios, array(
 									'idComentario' => $doc->DoctorComentarios_idComentario, 
 									'paciente' => array(
 														'paciente' => $doc->DoctorComentarios_paciente,
@@ -105,15 +106,16 @@ function doctorById(){
 														), 
 									'fecha' => $doc->DoctorComentarios_fecha, 
 									'comentario' => $doc->DoctorComentarios_comentario
-								);
-			$doc->comentarios = $comentarios;
-			unset($doc->DoctorComentarios_idComentario);
-			unset($doc->DoctorComentarios_paciente);
-			unset($doc->PacienteNombre);
-			unset($doc->DoctorComentarios_fecha);
-			unset($doc->DoctorComentarios_comentario);
+								)); 
 		}
-		echo json_encode($data[0]);
+		$doctor = $data[0];
+		$doctor->comentarios = $comentarios;
+		unset($doctor->DoctorComentarios_idComentario);
+		unset($doctor->DoctorComentarios_paciente);
+		unset($doctor->PacienteNombre);
+		unset($doctor->DoctorComentarios_fecha);
+		unset($doctor->DoctorComentarios_comentario);
+		echo json_encode($doctor);
 	} 
 	catch(PDOException $e) {
 		$answer = array( 'error' =>  $e->getMessage());
