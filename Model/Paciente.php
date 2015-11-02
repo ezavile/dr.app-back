@@ -37,4 +37,49 @@ function addPaciente() {
 	}
 }
 
+function addComentario(){
+	$request = \Slim\Slim::getInstance()->request();
+	$req = json_decode($request->getBody());
+	$sql = "INSERT INTO doctor_comentarios (doctor, paciente, fecha, comentario) VALUES (:doctor, :paciente, :fecha, :comentario)";
+	
+
+
+	try {
+		$db = getConnection(); 
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("doctor", $req->doctor);
+		$stmt->bindParam("paciente", $req->paciente);
+		$stmt->bindParam("fecha", date_create()->format('Y-m-d H:i:s'));
+		$stmt->bindParam("comentario", $req->comentario);
+		$stmt->execute();
+		$db = null;
+		$req->fecha = date_create()->format('Y-m-d H:i:s');
+		echo json_encode($req);
+	} catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+function addMensaje(){
+	$request = \Slim\Slim::getInstance()->request();
+	$req = json_decode($request->getBody());
+	$sql = "INSERT INTO doctor_mensaje(doctor, paciente, fecha, mensaje) VALUES (:doctor, :paciente, :fecha, :mensaje)";
+
+	try {
+		$db = getConnection(); 
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("doctor", $req->doctor);
+		$stmt->bindParam("paciente", $req->paciente);
+		$stmt->bindParam("fecha", date_create()->format('Y-m-d H:i:s'));
+		$stmt->bindParam("mensaje", $req->mensaje);
+		$stmt->execute();
+		$db = null;
+		$req->fecha = date_create()->format('Y-m-d H:i:s');
+		echo json_encode($req);
+	} catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+
 ?>

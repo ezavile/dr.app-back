@@ -9,7 +9,7 @@ require 'Model/Login.php';
 /* Register autoloader and instantiate Slim */
 \Slim\Slim::registerAutoloader();
 $app = new \Slim\Slim();
-
+date_default_timezone_set('America/Mexico_City');
 
 header('Access-Control-Allow-Origin: *');
 
@@ -47,6 +47,8 @@ $app->get('/especialidades', 'getEspecialidades');
 
 //Paciente
 $app->post('/paciente', 'addPaciente');
+$app->post('/doctor/comentario', 'addComentario');
+$app->post('/doctor/mensaje', 'addMensaje');
 
 //Doctor
 $app->post('/doctor', 'addDoctor');
