@@ -40,7 +40,7 @@ function addPaciente() {
 function addComentario(){
 	$request = \Slim\Slim::getInstance()->request();
 	$req = json_decode($request->getBody());
-	$sql = "INSERT INTO doctor_comentarios (doctor, paciente, fecha, comentario) VALUES (:doctor, :paciente, :fecha, :comentario)";
+	$sql = "INSERT INTO paciente_doctor_comentarios (doctor, paciente, fecha, comentario) VALUES (:doctor, :paciente, :fecha, :comentario)";
 	
 
 
@@ -63,7 +63,7 @@ function addComentario(){
 function addMensaje(){
 	$request = \Slim\Slim::getInstance()->request();
 	$req = json_decode($request->getBody());
-	$sql = "INSERT INTO doctor_mensaje(doctor, paciente, fecha, mensaje) VALUES (:doctor, :paciente, :fecha, :mensaje)";
+	$sql = "INSERT INTO paciente_doctor_mensaje(doctor, paciente, fecha, mensaje) VALUES (:doctor, :paciente, :fecha, :mensaje)";
 
 	try {
 		$db = getConnection(); 

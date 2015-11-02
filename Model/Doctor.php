@@ -76,24 +76,24 @@ function doctorById(){
 						doctor.foto2 as foto2, 
 						doctor.foto3 as foto3, 
 						doctor.coordenadas as coordenadas, 
-						doctor_comentarios.idComentario as DoctorComentarios_idComentario, 
-						doctor_comentarios.paciente as DoctorComentarios_paciente, 
-						doctor_comentarios.fecha as DoctorComentarios_fecha, 
-						doctor_comentarios.comentario as DoctorComentarios_comentario,
+						paciente_doctor_comentarios.idComentario as DoctorComentarios_idComentario, 
+						paciente_doctor_comentarios.paciente as DoctorComentarios_paciente, 
+						paciente_doctor_comentarios.fecha as DoctorComentarios_fecha, 
+						paciente_doctor_comentarios.comentario as DoctorComentarios_comentario,
 						paciente.nombre as PacienteNombre,
 						paciente.imgPerfil as PacienteImgPerfil
 					FROM 
 						doctor, 
-						doctor_comentarios,
+						paciente_doctor_comentarios,
 						paciente
 					WHERE 
-						doctor.doctor = doctor_comentarios.doctor
+						doctor.doctor = paciente_doctor_comentarios.doctor
 						AND
-						doctor_comentarios.paciente = paciente.paciente
+						paciente_doctor_comentarios.paciente = paciente.paciente
 						AND 
 						doctor.doctor = '$doc->doctor'
 					ORDER BY
-						doctor_comentarios.fecha desc";
+						paciente_doctor_comentarios.fecha desc";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
