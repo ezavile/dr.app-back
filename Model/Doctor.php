@@ -59,12 +59,66 @@ function addDoctor() {
 		echo json_encode($answer);
 	}
 }
+
+function getComentarios($id){
+	$comentarios = array();
+	$sql_query = "SELECT 
+						paciente_doctor_comentarios.idComentario as DoctorComentarios_idComentario,
+						paciente_doctor_comentarios.doctor as DoctorComentarios_doctor, 
+						paciente_doctor_comentarios.paciente as DoctorComentarios_paciente, 
+						paciente_doctor_comentarios.fecha as DoctorComentarios_fecha, 
+						paciente_doctor_comentarios.comentario as DoctorComentarios_comentario,
+						paciente.nombre as PacienteNombre,
+						paciente.imgPerfil as PacienteImgPerfil
+					FROM 
+						paciente,
+						paciente_doctor_comentarios
+					WHERE 
+						paciente_doctor_comentarios.paciente = paciente.paciente
+						AND
+						paciente_doctor_comentarios.doctor = '$id'
+					ORDER BY
+						paciente_doctor_comentarios.fecha desc";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$res  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		foreach ($res as $comentario) {
+			$comentario->comentario = array(
+					'idComentario' => $comentario->DoctorComentarios_idComentario, 
+					'paciente' => array(
+										'paciente' => $comentario->DoctorComentarios_paciente,
+										'nombre' => $comentario->PacienteNombre,
+										'imgPerfil' => $comentario->PacienteImgPerfil
+										), 
+					'fecha' => $comentario->DoctorComentarios_fecha, 
+					'comentario' => $comentario->DoctorComentarios_comentario
+					);
+			unset($comentario->DoctorComentarios_doctor);
+			unset($comentario->DoctorComentarios_idComentario);
+			unset($comentario->DoctorComentarios_paciente);
+			unset($comentario->PacienteNombre);
+			unset($comentario->PacienteImgPerfil);
+			unset($comentario->DoctorComentarios_fecha);
+			unset($comentario->DoctorComentarios_comentario);
+			array_push($comentarios, $comentario);
+
+		}
+
+
+		$dbCon = null;
+	} 
+	catch(PDOException $e) {
+		$comentarios = array( 'error' =>  $e->getMessage());
+	}
+	return $comentarios;
+}
 // obtiene info general, comentarios, info de los pacientes
 function doctorById(){
 	$request = \Slim\Slim::getInstance()->request();
 	$doc = json_decode($request->getBody());
 
-	$sql_query = 	"SELECT 
+	$sql_query = "SELECT 
 						doctor.doctor as doctor, 
 						doctor.nombre as nombre, 
 						doctor.imgPerfil as imgPerfil, 
@@ -75,51 +129,20 @@ function doctorById(){
 						doctor.foto1 as foto1, 
 						doctor.foto2 as foto2, 
 						doctor.foto3 as foto3, 
-						doctor.coordenadas as coordenadas, 
-						paciente_doctor_comentarios.idComentario as DoctorComentarios_idComentario, 
-						paciente_doctor_comentarios.paciente as DoctorComentarios_paciente, 
-						paciente_doctor_comentarios.fecha as DoctorComentarios_fecha, 
-						paciente_doctor_comentarios.comentario as DoctorComentarios_comentario,
-						paciente.nombre as PacienteNombre,
-						paciente.imgPerfil as PacienteImgPerfil
+						doctor.coordenadas as coordenadas
 					FROM 
-						doctor, 
-						paciente_doctor_comentarios,
-						paciente
+						doctor
 					WHERE 
-						doctor.doctor = paciente_doctor_comentarios.doctor
-						AND
-						paciente_doctor_comentarios.paciente = paciente.paciente
-						AND 
-						doctor.doctor = '$doc->doctor'
-					ORDER BY
-						paciente_doctor_comentarios.fecha desc";
+						doctor.doctor = '$doc->doctor'";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
 		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$dbCon = null;
 		$comentarios = array();
-		foreach ($data as $doc) {
-			array_push($comentarios, array(
-									'idComentario' => $doc->DoctorComentarios_idComentario, 
-									'paciente' => array(
-														'paciente' => $doc->DoctorComentarios_paciente,
-														'nombre' => $doc->PacienteNombre,
-														'imgPerfil' => $doc->PacienteImgPerfil
-														), 
-									'fecha' => $doc->DoctorComentarios_fecha, 
-									'comentario' => $doc->DoctorComentarios_comentario
-								)); 
-		}
 		$doctor = $data[0];
-		$doctor->comentarios = $comentarios;
-		unset($doctor->DoctorComentarios_idComentario);
-		unset($doctor->DoctorComentarios_paciente);
-		unset($doctor->PacienteNombre);
-		unset($doctor->PacienteImgPerfil);
-		unset($doctor->DoctorComentarios_fecha);
-		unset($doctor->DoctorComentarios_comentario);
+		//obtener comentarios del doctor
+		$doctor->comentarios = getComentarios($doc->doctor);
 		echo json_encode($doctor);
 	} 
 	catch(PDOException $e) {
