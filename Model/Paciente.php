@@ -41,8 +41,6 @@ function addComentario(){
 	$request = \Slim\Slim::getInstance()->request();
 	$req = json_decode($request->getBody());
 	$sql = "INSERT INTO paciente_doctor_comentarios (doctor, paciente, fecha, comentario) VALUES (:doctor, :paciente, :fecha, :comentario)";
-	
-
 
 	try {
 		$db = getConnection(); 

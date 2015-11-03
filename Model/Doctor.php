@@ -60,6 +60,64 @@ function addDoctor() {
 	}
 }
 
+
+
+
+
+function getCitas($id){
+	$citas = array();
+	$sql_query = "SELECT 
+						paciente_doctor_citas.fecha as DoctorCita_fecha,
+						paciente_doctor_citas.hora as DoctorCita_hora,
+						paciente_doctor_citas.paciente as DoctorCita_paciente,
+						paciente_doctor_citas.asunto as DoctorCita_asunto,
+						paciente_doctor_citas.estatus as DoctorCita_estatus,
+						paciente.nombre as PacienteNombre,
+						paciente.imgPerfil as PacienteImgPerfil
+					FROM 
+						paciente,
+						paciente_doctor_citas
+					WHERE 
+						paciente_doctor_citas.paciente = paciente.paciente
+						AND
+						paciente_doctor_citas.doctor = '$id'
+					ORDER BY
+						paciente_doctor_citas.fecha, paciente_doctor_citas.hora desc";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$res  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		foreach ($res as $cita) {
+			$cita->cita = array(
+					'fecha' => $cita->DoctorCita_fecha, 
+					'hora' => $cita->DoctorCita_hora, 
+					'paciente' => array(
+										'paciente' => $cita->DoctorCita_paciente,
+										'nombre' => $cita->PacienteNombre,
+										'imgPerfil' => $cita->PacienteImgPerfil
+										), 
+					'estatus' => $cita->DoctorCita_estatus,
+					'asunto' => $cita->DoctorCita_asunto 
+					);
+			unset($cita->DoctorCita_fecha);
+			unset($cita->DoctorCita_hora);
+			unset($cita->DoctorCita_paciente);
+			unset($cita->DoctorCita_asunto);
+			unset($cita->DoctorCita_estatus);
+			unset($cita->PacienteNombre);
+			unset($cita->PacienteImgPerfil);
+			array_push($citas, $cita);
+
+		}
+
+		$dbCon = null;
+	} 
+	catch(PDOException $e) {
+		$citas = array( 'error' =>  $e->getMessage());
+	}
+	return $citas;
+}
+
 function getComentarios($id){
 	$comentarios = array();
 	$sql_query = "SELECT 
@@ -143,6 +201,7 @@ function doctorById(){
 		$doctor = $data[0];
 		//obtener comentarios del doctor
 		$doctor->comentarios = getComentarios($doc->doctor);
+		$doctor->citas = getCitas($doc->doctor);
 		echo json_encode($doctor);
 	} 
 	catch(PDOException $e) {
