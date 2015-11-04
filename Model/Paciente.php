@@ -37,6 +37,31 @@ function addPaciente() {
 	}
 }
 
+function addCita(){
+	$request = \Slim\Slim::getInstance()->request();
+	$req = json_decode($request->getBody());
+	$req->estatus = "EN ESPERA";
+
+	$sql = "INSERT INTO paciente_doctor_citas (fecha, hora, doctor, paciente, asunto, estatus) VALUES (:fecha, :hora, :doctor, :paciente, :asunto, :estatus)";
+
+	try {
+		$db = getConnection(); 
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("fecha", $req->fecha);
+		$stmt->bindParam("hora", $req->hora);
+		$stmt->bindParam("doctor", $req->doctor);
+		$stmt->bindParam("paciente", $req->paciente);
+		$stmt->bindParam("asunto", $req->asunto);
+		$stmt->bindParam("estatus", $req->estatus);
+		$stmt->execute();
+		$db = null;
+		echo json_encode($req);
+	} catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+
 function addComentario(){
 	$request = \Slim\Slim::getInstance()->request();
 	$req = json_decode($request->getBody());

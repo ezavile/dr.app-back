@@ -88,7 +88,7 @@ function getCitas($id){
 		$stmt   = $dbCon->query($sql_query);
 		$res  = $stmt->fetchAll(PDO::FETCH_OBJ);
 		foreach ($res as $cita) {
-			$cita->cita = array(
+			$cita  = array(
 					'fecha' => $cita->DoctorCita_fecha, 
 					'hora' => $cita->DoctorCita_hora, 
 					'paciente' => array(
@@ -142,7 +142,7 @@ function getComentarios($id){
 		$stmt   = $dbCon->query($sql_query);
 		$res  = $stmt->fetchAll(PDO::FETCH_OBJ);
 		foreach ($res as $comentario) {
-			$comentario->comentario = array(
+			$comentario  = array(
 					'idComentario' => $comentario->DoctorComentarios_idComentario, 
 					'paciente' => array(
 										'paciente' => $comentario->DoctorComentarios_paciente,

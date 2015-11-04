@@ -49,6 +49,7 @@ $app->get('/especialidades', 'getEspecialidades');
 $app->post('/paciente', 'addPaciente');
 $app->post('/paciente/comentario', 'addComentario');
 $app->post('/paciente/mensaje', 'addMensaje');
+$app->post('/paciente/cita', 'addCita');
 
 //Doctor
 $app->post('/doctor', 'addDoctor');
