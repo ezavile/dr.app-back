@@ -105,4 +105,26 @@ function addMensaje(){
 	}
 }
 
+function updatePaciente() {
+	$request = \Slim\Slim::getInstance()->request();
+	$req = json_decode($request->getBody());
+
+	$sql = "UPDATE paciente SET password=:password, imgPerfil=:imgPerfil, nombre=:nombre, correo=:correo, telefono=:telefono WHERE paciente='$req->paciente'";
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("password", $req->password);
+		$stmt->bindParam("imgPerfil", $req->imgPerfil);
+		$stmt->bindParam("nombre", $req->nombre);
+		$stmt->bindParam("correo", $req->correo);
+		$stmt->bindParam("telefono", $req->telefono);
+		$stmt->execute();
+		$db = null;
+		echo json_encode($req);
+	} catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+
 ?>

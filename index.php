@@ -50,6 +50,7 @@ $app->post('/paciente', 'addPaciente');
 $app->post('/paciente/comentario', 'addComentario');
 $app->post('/paciente/mensaje', 'addMensaje');
 $app->post('/paciente/cita', 'addCita');
+$app->put('/paciente', 'updatePaciente');
 
 //Doctor
 $app->post('/doctor', 'addDoctor');
