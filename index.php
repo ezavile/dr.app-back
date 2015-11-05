@@ -50,12 +50,14 @@ $app->post('/pacientes', 'pacientePostPaciente');
 /*Actualizar un paciente*/
 $app->put('/pacientes', 'pacientePutPaciente');
 
-
+/* Crear un nuevo comentario */
 $app->post('/pacientes/comentarios', 'pacientePostComentario');
+/* Crear un nuevo mensaje */
 $app->post('/pacientes/mensajes', 'pacientePostMensaje');
+/* Crear una nueva cita */
 $app->post('/pacientes/citas', 'pacientePostCita');
-
-//$app->post('/pacienteById', 'pacienteById');
+/* Obtener los datos de un paciente */
+$app->get('/pacienteById/:paciente', 'pacienteById');
 
 //Doctor
 /* Obtener todas las especialidades */

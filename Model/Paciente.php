@@ -112,8 +112,88 @@ function pacientePutPaciente() {
 }
 
 
-/*
-function pacienteGetCita($id){
+
+// obtiene info general, mensajes, citas
+function pacienteById($pac){
+	$sql_query = "SELECT 
+						paciente.paciente as paciente, 
+						paciente.password as password, 
+						paciente.nombre as nombre, 
+						paciente.imgPerfil as imgPerfil, 
+						paciente.correo as correo, 
+						paciente.telefono as telefono
+					FROM 
+						paciente
+					WHERE 
+						paciente.paciente = '$pac'";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$dbCon = null;
+		$comentarios = array();
+		$paciente = $data[0];
+		$paciente->citas = pacienteGetCitas($pac);
+		$paciente->mensajes = pacienteGetMensajes($pac);
+		echo json_encode($paciente);
+	} 
+	catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+
+
+function pacienteGetMensajes($id){
+	$mensajes = array();
+	$sql_query = "SELECT 
+						paciente_doctor_mensajes.idMensaje as DoctorMensaje_idMensaje,
+						paciente_doctor_mensajes.doctor as DoctorMensaje_doctor,
+						paciente_doctor_mensajes.mensaje as DoctorMensaje_mensaje,
+						paciente_doctor_mensajes.fecha as DoctorMensaje_fecha,
+						doctor.nombre as DocNombre,
+						doctor.imgPerfil as DocImgPerfil
+					FROM 
+						doctor,
+						paciente_doctor_mensajes
+					WHERE 
+						paciente_doctor_mensajes.doctor = doctor.doctor
+						AND
+						paciente_doctor_mensajes.paciente = '$id'
+					ORDER BY
+						paciente_doctor_mensajes.fecha, paciente_doctor_mensajes.doctor desc";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$res  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		foreach ($res as $msj) {
+			$msj  = array(
+					'idMensaje' => $msj->DoctorMensaje_idMensaje,
+					'doctor' => array(
+										'doctor' => $msj->DoctorMensaje_doctor,
+										'nombre' => $msj->DocNombre,
+										'imgPerfil' => $msj->DocImgPerfil
+										), 
+					'mensaje' => $msj->DoctorMensaje_mensaje ,
+					'fecha' => $msj->DoctorMensaje_fecha 
+					);
+			unset($msj->DoctorMensaje_idMensaje);
+			unset($msj->DoctorMensaje_doctor);
+			unset($msj->DoctorMensaje_mensaje);
+			unset($msj->DoctorMensaje_fecha);
+			unset($msj->DocNombre);
+			unset($msj->DocImgPerfil);
+			array_push($mensajes, $msj);
+		}
+
+		$dbCon = null;
+	} 
+	catch(PDOException $e) {
+		$mensajes = array( 'error' =>  $e->getMessage());
+	}
+	return $mensajes;
+}
+function pacienteGetCitas($id){
 	$citas = array();
 	$sql_query = "SELECT 
 						paciente_doctor_citas.fecha as DoctorCita_fecha,
@@ -166,38 +246,4 @@ function pacienteGetCita($id){
 	}
 	return $citas;
 }
-
-
-// obtiene info general, comentarios, info de los pacientes
-function pacienteById(){
-	$request = \Slim\Slim::getInstance()->request();
-	$pac = json_decode($request->getBody());
-
-	$sql_query = "SELECT 
-						paciente.paciente as paciente, 
-						paciente.password as password, 
-						paciente.nombre as nombre, 
-						paciente.imgPerfil as imgPerfil, 
-						paciente.correo as correo, 
-						paciente.telefono as telefono
-					FROM 
-						paciente
-					WHERE 
-						paciente.paciente = '$pac->paciente'";
-	try {
-		$dbCon = getConnection();
-		$stmt   = $dbCon->query($sql_query);
-		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
-		$dbCon = null;
-		$comentarios = array();
-		$paciente = $data[0];
-
-		$paciente->citas = getCitasPaciente($pac->paciente);
-		echo json_encode($paciente);
-	} 
-	catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
-	}
-}*/
 ?>

@@ -60,18 +60,20 @@ function doctorPostDoctor() {
 	}
 }
 
-function doctoresByEspecialidad($especialidad) {
-	$sql_query = "SELECT * FROM doctor, especialidades WHERE doctor.idEspecialidad = especialidades.idEspecialidad AND doctor.idEspecialidad = '$especialidad'";
+function doctoresByEspecialidad($esp) {
+	$sql_query = "SELECT * FROM doctor, especialidades WHERE doctor.idEspecialidad = especialidades.idEspecialidad AND doctor.idEspecialidad = '$esp'";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
 		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$dbCon = null;
 		foreach ($data as $doc) {
-			$especialidad = array('idEspecialidad' => $especialidad, 'especialidad' => $especialidad, 'enfermedadesAsociadas' => $doc->enfermedadesAsociadas);
-			$especialidad = $especialidad;
-			unset($idEspecialidad);
-			unset($enfermedadesAsociadas);
+
+			$especialidad = array('idEspecialidad' => $doc->idEspecialidad, 'especialidad' => $doc->especialidad, 'enfermedadesAsociadas' => $doc->enfermedadesAsociadas);
+			$doc->especialidad = $especialidad;
+			unset($doc->idEspecialidad);
+			unset($doc->enfermedadesAsociadas);
+
 		}
 		echo json_encode($data);
 	} 
