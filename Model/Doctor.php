@@ -1,6 +1,6 @@
 <?php
 
-function getDoctores() { 
+function doctorGetDoctores() { 
 	$sql_query = "SELECT * FROM doctor";
 	try {
 		$dbCon = getConnection();
@@ -15,7 +15,7 @@ function getDoctores() {
 	}
 }
 
-function getEspecialidades() { 
+function doctorGetEspecialidades() { 
 	$sql_query = "SELECT * FROM especialidades";
 	try {
 		$dbCon = getConnection();
@@ -31,7 +31,7 @@ function getEspecialidades() {
 }
 
 
-function addDoctor() {
+function doctorPostDoctor() {
 	$request = \Slim\Slim::getInstance()->request();
 	$doc = json_decode($request->getBody());
 	$sql = "INSERT INTO doctor (idEspecialidad, doctor, imgPerfil, password, nombre, servicios, telefono, direccion, coordenadas, correo, foto1, foto2, foto3) VALUES (:idEspecialidad, :doctor, :imgPerfil, :password, :nombre, :servicios, :telefono, :direccion, :coordenadas, :correo, :foto1, :foto2, :foto3)";
@@ -60,11 +60,117 @@ function addDoctor() {
 	}
 }
 
+function doctoresByEspecialidad($especialidad) {
+	$sql_query = "SELECT * FROM doctor, especialidades WHERE doctor.idEspecialidad = especialidades.idEspecialidad AND doctor.idEspecialidad = '$especialidad'";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$dbCon = null;
+		foreach ($data as $doc) {
+			$especialidad = array('idEspecialidad' => $especialidad, 'especialidad' => $especialidad, 'enfermedadesAsociadas' => $doc->enfermedadesAsociadas);
+			$especialidad = $especialidad;
+			unset($idEspecialidad);
+			unset($enfermedadesAsociadas);
+		}
+		echo json_encode($data);
+	} 
+	catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+// obtiene info general, comentarios, info de los pacientes
+function doctorById($doc){
+	$sql_query = "SELECT 
+						doctor.doctor as doctor, 
+						doctor.nombre as nombre, 
+						doctor.imgPerfil as imgPerfil, 
+						doctor.servicios as servicios, 
+						doctor.telefono as telefono, 
+						doctor.direccion as direccion, 
+						doctor.correo as correo, 
+						doctor.foto1 as foto1, 
+						doctor.foto2 as foto2, 
+						doctor.foto3 as foto3, 
+						doctor.coordenadas as coordenadas
+					FROM 
+						doctor
+					WHERE 
+						doctor.doctor = '$doc'";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$dbCon = null;
+		$comentarios = array();
+		$doctor = $data[0];
+		//obtener comentarios del doctor
+		$doctor->comentarios = doctorGetComentarios($doc);
+		$doctor->citas = doctorGetCitas($doc);
+		echo json_encode($doctor);
+	} 
+	catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+
+function doctorGetComentarios($id){
+	$comentarios = array();
+	$sql_query = "SELECT 
+						paciente_doctor_comentarios.idComentario as DoctorComentarios_idComentario,
+						paciente_doctor_comentarios.doctor as DoctorComentarios_doctor, 
+						paciente_doctor_comentarios.paciente as DoctorComentarios_paciente, 
+						paciente_doctor_comentarios.fecha as DoctorComentarios_fecha, 
+						paciente_doctor_comentarios.comentario as DoctorComentarios_comentario,
+						paciente.nombre as PacienteNombre,
+						paciente.imgPerfil as PacienteImgPerfil
+					FROM 
+						paciente,
+						paciente_doctor_comentarios
+					WHERE 
+						paciente_doctor_comentarios.paciente = paciente.paciente
+						AND
+						paciente_doctor_comentarios.doctor = '$id'
+					ORDER BY
+						paciente_doctor_comentarios.fecha desc";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$res  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		foreach ($res as $comentario) {
+			$comentario  = array(
+					'idComentario' => $comentario->DoctorComentarios_idComentario, 
+					'paciente' => array(
+										'paciente' => $comentario->DoctorComentarios_paciente,
+										'nombre' => $comentario->PacienteNombre,
+										'imgPerfil' => $comentario->PacienteImgPerfil
+										), 
+					'fecha' => $comentario->DoctorComentarios_fecha, 
+					'comentario' => $comentario->DoctorComentarios_comentario
+					);
+			unset($comentario->DoctorComentarios_doctor);
+			unset($comentario->DoctorComentarios_idComentario);
+			unset($comentario->DoctorComentarios_paciente);
+			unset($comentario->PacienteNombre);
+			unset($comentario->PacienteImgPerfil);
+			unset($comentario->DoctorComentarios_fecha);
+			unset($comentario->DoctorComentarios_comentario);
+			array_push($comentarios, $comentario);
+
+		}
 
 
+		$dbCon = null;
+	} 
+	catch(PDOException $e) {
+		$comentarios = array( 'error' =>  $e->getMessage());
+	}
+	return $comentarios;
+}
 
-
-function getCitas($id){
+function doctorGetCitas($id){
 	$citas = array();
 	$sql_query = "SELECT 
 						paciente_doctor_citas.fecha as DoctorCita_fecha,
@@ -118,119 +224,4 @@ function getCitas($id){
 	return $citas;
 }
 
-function getComentarios($id){
-	$comentarios = array();
-	$sql_query = "SELECT 
-						paciente_doctor_comentarios.idComentario as DoctorComentarios_idComentario,
-						paciente_doctor_comentarios.doctor as DoctorComentarios_doctor, 
-						paciente_doctor_comentarios.paciente as DoctorComentarios_paciente, 
-						paciente_doctor_comentarios.fecha as DoctorComentarios_fecha, 
-						paciente_doctor_comentarios.comentario as DoctorComentarios_comentario,
-						paciente.nombre as PacienteNombre,
-						paciente.imgPerfil as PacienteImgPerfil
-					FROM 
-						paciente,
-						paciente_doctor_comentarios
-					WHERE 
-						paciente_doctor_comentarios.paciente = paciente.paciente
-						AND
-						paciente_doctor_comentarios.doctor = '$id'
-					ORDER BY
-						paciente_doctor_comentarios.fecha desc";
-	try {
-		$dbCon = getConnection();
-		$stmt   = $dbCon->query($sql_query);
-		$res  = $stmt->fetchAll(PDO::FETCH_OBJ);
-		foreach ($res as $comentario) {
-			$comentario  = array(
-					'idComentario' => $comentario->DoctorComentarios_idComentario, 
-					'paciente' => array(
-										'paciente' => $comentario->DoctorComentarios_paciente,
-										'nombre' => $comentario->PacienteNombre,
-										'imgPerfil' => $comentario->PacienteImgPerfil
-										), 
-					'fecha' => $comentario->DoctorComentarios_fecha, 
-					'comentario' => $comentario->DoctorComentarios_comentario
-					);
-			unset($comentario->DoctorComentarios_doctor);
-			unset($comentario->DoctorComentarios_idComentario);
-			unset($comentario->DoctorComentarios_paciente);
-			unset($comentario->PacienteNombre);
-			unset($comentario->PacienteImgPerfil);
-			unset($comentario->DoctorComentarios_fecha);
-			unset($comentario->DoctorComentarios_comentario);
-			array_push($comentarios, $comentario);
-
-		}
-
-
-		$dbCon = null;
-	} 
-	catch(PDOException $e) {
-		$comentarios = array( 'error' =>  $e->getMessage());
-	}
-	return $comentarios;
-}
-// obtiene info general, comentarios, info de los pacientes
-function doctorById(){
-	$request = \Slim\Slim::getInstance()->request();
-	$doc = json_decode($request->getBody());
-
-	$sql_query = "SELECT 
-						doctor.doctor as doctor, 
-						doctor.nombre as nombre, 
-						doctor.imgPerfil as imgPerfil, 
-						doctor.servicios as servicios, 
-						doctor.telefono as telefono, 
-						doctor.direccion as direccion, 
-						doctor.correo as correo, 
-						doctor.foto1 as foto1, 
-						doctor.foto2 as foto2, 
-						doctor.foto3 as foto3, 
-						doctor.coordenadas as coordenadas
-					FROM 
-						doctor
-					WHERE 
-						doctor.doctor = '$doc->doctor'";
-	try {
-		$dbCon = getConnection();
-		$stmt   = $dbCon->query($sql_query);
-		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
-		$dbCon = null;
-		$comentarios = array();
-		$doctor = $data[0];
-		//obtener comentarios del doctor
-		$doctor->comentarios = getComentarios($doc->doctor);
-		$doctor->citas = getCitas($doc->doctor);
-		echo json_encode($doctor);
-	} 
-	catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
-	}
-}
-
-function doctoresByEspecialidad() {
-	$request = \Slim\Slim::getInstance()->request();
-	$especialidad = json_decode($request->getBody());
-
-	$sql_query = "SELECT * FROM doctor, especialidades WHERE doctor.idEspecialidad = especialidades.idEspecialidad AND doctor.idEspecialidad = '$especialidad->idEspecialidad'";
-	try {
-		$dbCon = getConnection();
-		$stmt   = $dbCon->query($sql_query);
-		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
-		$dbCon = null;
-		foreach ($data as $doc) {
-			$especialidad = array('idEspecialidad' => $doc->especialidad, 'especialidad' => $doc->especialidad, 'enfermedadesAsociadas' => $doc->enfermedadesAsociadas);
-			$doc->especialidad = $especialidad;
-			unset($doc->idEspecialidad);
-			unset($doc->enfermedadesAsociadas);
-		}
-		echo json_encode($data);
-	} 
-	catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
-	}
-}
 ?>

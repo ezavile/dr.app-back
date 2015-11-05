@@ -43,20 +43,31 @@ function upload(){
 
 $app->post('/upload', 'upload');
 $app->post('/login', 'login');
-$app->get('/especialidades', 'getEspecialidades');
 
 //Paciente
-$app->post('/paciente', 'addPaciente');
-$app->post('/paciente/comentario', 'addComentario');
-$app->post('/paciente/mensaje', 'addMensaje');
-$app->post('/paciente/cita', 'addCita');
-$app->put('/paciente', 'updatePaciente');
+/*Crear un nuevo paciente*/
+$app->post('/pacientes', 'pacientePostPaciente');
+/*Actualizar un paciente*/
+$app->put('/pacientes', 'pacientePutPaciente');
+
+
+$app->post('/pacientes/comentarios', 'pacientePostComentario');
+$app->post('/pacientes/mensajes', 'pacientePostMensaje');
+$app->post('/pacientes/citas', 'pacientePostCita');
+
+//$app->post('/pacienteById', 'pacienteById');
 
 //Doctor
-$app->post('/doctor', 'addDoctor');
-$app->get('/doctores', 'getDoctores');
-$app->post('/doctoresByEspecialidad', 'doctoresByEspecialidad');
-$app->post('/doctorById', 'doctorById');
+/* Obtener todas las especialidades */
+$app->get('/especialidades', 'doctorGetEspecialidades');
+/* Crear un nuevo doctor */
+$app->post('/doctores', 'doctorPostDoctor');
+/* Obtener todos los doctores */
+$app->get('/doctores', 'doctorGetDoctores');
+/* Obtener los doctores de una especialidad */
+$app->get('/doctoresByEspecialidad/:especialidad', 'doctoresByEspecialidad');
+/* Obtener los datos de un doctor */
+$app->get('/doctorById/:doctor', 'doctorById');
 
 $app->run();
 
