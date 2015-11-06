@@ -41,6 +41,28 @@ function upload(){
 	}
 }
 
+
+
+function putEstatusCita() {
+	$request = \Slim\Slim::getInstance()->request();
+	$req = json_decode($request->getBody());
+
+	$sql = "UPDATE paciente_doctor_citas SET estatus=:estatus WHERE paciente='$req->paciente' AND doctor='$req->doctor' AND fecha='$req->fecha' AND hora='$req->hora'";
+
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("estatus", $req->estatus);
+		$stmt->execute();
+		$db = null;
+		echo json_encode($req);
+	} catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+
+
 $app->post('/upload', 'upload');
 $app->post('/login', 'login');
 
@@ -49,18 +71,23 @@ $app->post('/login', 'login');
 $app->post('/pacientes', 'pacientePostPaciente');
 /*Actualizar un paciente*/
 $app->put('/pacientes', 'pacientePutPaciente');
+
 /* Obtener los datos de un paciente */
 $app->get('/pacienteById/:paciente', 'pacienteById');
 /* Crear un nuevo comentario */
 $app->post('/pacientes/comentarios', 'pacientePostComentario');
+
 /* Crear un nuevo mensaje */
 $app->post('/pacientes/mensajes', 'pacientePostMensaje');
+/* Obtener los mensajes */
+$app->get('/pacientes/mensajes/:paciente', 'pacienteGetMensajes');
+
 /* Crear una nueva cita */
 $app->post('/pacientes/citas', 'pacientePostCita');
 /* Obtener las citas */
 $app->get('/pacientes/citas/:paciente', 'pacienteGetCitas');
-/* Obtener los mensajes */
-$app->get('/pacientes/mensajes/:paciente', 'pacienteGetMensajes');
+/* Modificar citas */
+$app->put('/pacientes/citas', 'pacientePutCitas');
 
 //Doctor
 /* Obtener todas las especialidades */
@@ -73,6 +100,11 @@ $app->get('/doctores', 'doctorGetDoctores');
 $app->get('/doctoresByEspecialidad/:especialidad', 'doctoresByEspecialidad');
 /* Obtener los datos de un doctor */
 $app->get('/doctorById/:doctor', 'doctorById');
+$app->get('/doctores/citas/:doctor', 'doctorGetCitas');
+$app->get('/doctores/comentarios/:doctor', 'doctorGetComentarios');
+
+
+$app->put('/estatusCita', 'putEstatusCita');
 
 $app->run();
 

@@ -248,4 +248,25 @@ function pacienteGetCitas($id){
 
 	echo json_encode($citas);
 }
+
+function pacientePutCitas() {
+	$request = \Slim\Slim::getInstance()->request();
+	$req = json_decode($request->getBody());
+
+	$sql = "UPDATE paciente_doctor_citas SET fecha=:fecha, hora=:hora, asunto=:asunto WHERE paciente='$req->paciente' AND doctor='$req->doctor' AND fecha='$req->fecha' AND hora='$req->hora'";
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("fecha", $req->newFecha);
+		$stmt->bindParam("hora", $req->newHora);
+		$stmt->bindParam("asunto", $req->asunto);
+		$stmt->execute();
+		$db = null;
+		echo json_encode($req);
+	} catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+
 ?>

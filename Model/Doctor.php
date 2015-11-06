@@ -108,8 +108,8 @@ function doctorById($doc){
 		$comentarios = array();
 		$doctor = $data[0];
 		//obtener comentarios del doctor
-		$doctor->comentarios = doctorGetComentarios($doc);
-		$doctor->citas = doctorGetCitas($doc);
+		//$doctor->comentarios = doctorGetComentarios($doc);
+		//$doctor->citas = doctorGetCitas($doc);
 		echo json_encode($doctor);
 	} 
 	catch(PDOException $e) {
@@ -169,7 +169,7 @@ function doctorGetComentarios($id){
 	catch(PDOException $e) {
 		$comentarios = array( 'error' =>  $e->getMessage());
 	}
-	return $comentarios;
+	echo json_encode($comentarios);
 }
 
 function doctorGetCitas($id){
@@ -223,7 +223,7 @@ function doctorGetCitas($id){
 	catch(PDOException $e) {
 		$citas = array( 'error' =>  $e->getMessage());
 	}
-	return $citas;
+	echo json_encode($citas);
 }
 
 ?>
