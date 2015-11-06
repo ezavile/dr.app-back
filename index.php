@@ -42,6 +42,28 @@ function upload(){
 }
 
 
+function postMensaje(){
+	$request = \Slim\Slim::getInstance()->request();
+	$req = json_decode($request->getBody());
+	$sql = "INSERT INTO paciente_doctor_mensajes(doctor, paciente, fecha, mensaje, autor) VALUES (:doctor, :paciente, :fecha, :mensaje, :autor)";
+
+	try {
+		$db = getConnection(); 
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("doctor", $req->doctor);
+		$stmt->bindParam("paciente", $req->paciente);
+		$stmt->bindParam("fecha", date_create()->format('Y-m-d H:i:s'));
+		$stmt->bindParam("mensaje", $req->mensaje);
+		$stmt->bindParam("autor", $req->autor);
+		$stmt->execute();
+		$db = null;
+		$req->fecha = date_create()->format('Y-m-d H:i:s');
+		echo json_encode($req);
+	} catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
 
 function putEstatusCita() {
 	$request = \Slim\Slim::getInstance()->request();
@@ -77,8 +99,6 @@ $app->get('/pacienteById/:paciente', 'pacienteById');
 /* Crear un nuevo comentario */
 $app->post('/pacientes/comentarios', 'pacientePostComentario');
 
-/* Crear un nuevo mensaje */
-$app->post('/pacientes/mensajes', 'pacientePostMensaje');
 /* Obtener los mensajes */
 $app->get('/pacientes/mensajes/:paciente', 'pacienteGetMensajes');
 
@@ -105,6 +125,8 @@ $app->get('/doctores/comentarios/:doctor', 'doctorGetComentarios');
 
 
 $app->put('/estatusCita', 'putEstatusCita');
+/* Crear un nuevo mensaje */
+$app->post('/mensajes', 'postMensaje');
 
 $app->run();
 

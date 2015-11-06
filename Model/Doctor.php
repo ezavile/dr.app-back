@@ -190,7 +190,7 @@ function doctorGetCitas($id){
 						AND
 						paciente_doctor_citas.doctor = '$id'
 					ORDER BY
-						paciente_doctor_citas.fecha, paciente_doctor_citas.hora desc";
+						paciente_doctor_citas.fecha desc, paciente_doctor_citas.hora asc";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);

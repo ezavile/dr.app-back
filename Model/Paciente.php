@@ -67,27 +67,6 @@ function pacientePostComentario(){
 		echo json_encode($answer);
 	}
 }
-function pacientePostMensaje(){
-	$request = \Slim\Slim::getInstance()->request();
-	$req = json_decode($request->getBody());
-	$sql = "INSERT INTO paciente_doctor_mensajes(doctor, paciente, fecha, mensaje) VALUES (:doctor, :paciente, :fecha, :mensaje)";
-
-	try {
-		$db = getConnection(); 
-		$stmt = $db->prepare($sql);
-		$stmt->bindParam("doctor", $req->doctor);
-		$stmt->bindParam("paciente", $req->paciente);
-		$stmt->bindParam("fecha", date_create()->format('Y-m-d H:i:s'));
-		$stmt->bindParam("mensaje", $req->mensaje);
-		$stmt->execute();
-		$db = null;
-		$req->fecha = date_create()->format('Y-m-d H:i:s');
-		echo json_encode($req);
-	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
-	}
-}
 
 function pacientePutPaciente() {
 	$request = \Slim\Slim::getInstance()->request();
@@ -151,6 +130,7 @@ function pacienteGetMensajes($id){
 						paciente_doctor_mensajes.doctor as DoctorMensaje_doctor,
 						paciente_doctor_mensajes.mensaje as DoctorMensaje_mensaje,
 						paciente_doctor_mensajes.fecha as DoctorMensaje_fecha,
+						paciente_doctor_mensajes.autor as DoctorMensaje_autor,
 						doctor.nombre as DocNombre,
 						doctor.imgPerfil as DocImgPerfil
 					FROM 
@@ -161,11 +141,12 @@ function pacienteGetMensajes($id){
 						AND
 						paciente_doctor_mensajes.paciente = '$id'
 					ORDER BY
-						paciente_doctor_mensajes.fecha, paciente_doctor_mensajes.doctor desc";
+						paciente_doctor_mensajes.doctor asc, paciente_doctor_mensajes.fecha desc";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
 		$res  = $stmt->fetchAll(PDO::FETCH_OBJ);
+
 		foreach ($res as $msj) {
 			$msj  = array(
 					'idMensaje' => $msj->DoctorMensaje_idMensaje,
@@ -175,11 +156,13 @@ function pacienteGetMensajes($id){
 										'imgPerfil' => $msj->DocImgPerfil
 										), 
 					'mensaje' => $msj->DoctorMensaje_mensaje ,
+					'autor' => $msj->DoctorMensaje_autor ,
 					'fecha' => $msj->DoctorMensaje_fecha 
 					);
 			unset($msj->DoctorMensaje_idMensaje);
 			unset($msj->DoctorMensaje_doctor);
 			unset($msj->DoctorMensaje_mensaje);
+			unset($msj->DoctorMensaje_autor);
 			unset($msj->DoctorMensaje_fecha);
 			unset($msj->DocNombre);
 			unset($msj->DocImgPerfil);
@@ -212,7 +195,7 @@ function pacienteGetCitas($id){
 						AND
 						paciente_doctor_citas.paciente = '$id'
 					ORDER BY
-						paciente_doctor_citas.fecha, paciente_doctor_citas.hora desc";
+						paciente_doctor_citas.fecha desc, paciente_doctor_citas.hora asc";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
