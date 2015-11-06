@@ -133,8 +133,8 @@ function pacienteById($pac){
 		$dbCon = null;
 		$comentarios = array();
 		$paciente = $data[0];
-		$paciente->citas = pacienteGetCitas($pac);
-		$paciente->mensajes = pacienteGetMensajes($pac);
+		//$paciente->citas = pacienteGetCitas($pac);
+		//$paciente->mensajes = pacienteGetMensajes($pac);
 		echo json_encode($paciente);
 	} 
 	catch(PDOException $e) {
@@ -191,7 +191,8 @@ function pacienteGetMensajes($id){
 	catch(PDOException $e) {
 		$mensajes = array( 'error' =>  $e->getMessage());
 	}
-	return $mensajes;
+
+	echo json_encode($mensajes);
 }
 function pacienteGetCitas($id){
 	$citas = array();
@@ -244,6 +245,7 @@ function pacienteGetCitas($id){
 	catch(PDOException $e) {
 		$citas = array( 'error' =>  $e->getMessage());
 	}
-	return $citas;
+
+	echo json_encode($citas);
 }
 ?>

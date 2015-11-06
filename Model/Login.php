@@ -30,8 +30,8 @@ function login() {
 	if(count($paciente) > 0){
 		$paciente = $paciente[0];
 		$paciente->tipoUsuario = 'paciente';
-		$paciente->citas = pacienteGetCitas($usuario->usuario);
-		$paciente->mensajes = pacienteGetMensajes($usuario->usuario);
+		//$paciente->citas = pacienteGetCitas($usuario->usuario);
+		//$paciente->mensajes = pacienteGetMensajes($usuario->usuario);
 		echo json_encode($paciente);
 	} else {
 		if(count($doctor) > 0){
