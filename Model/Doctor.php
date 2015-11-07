@@ -1,12 +1,19 @@
 <?php
 
 function doctorGetDoctores() { 
-	$sql_query = "SELECT * FROM doctor ORDER BY RAND() LIMIT 4";
+	$sql_query = "SELECT * FROM doctor, especialidades WHERE doctor.idEspecialidad=especialidades.idEspecialidad GROUP BY doctor.doctor ORDER BY RAND() LIMIT 4";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
 		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$dbCon = null;
+
+		foreach ($data as $doc) {
+			$especialidad = array('idEspecialidad' => $doc->idEspecialidad, 'especialidad' => $doc->especialidad, 'enfermedadesAsociadas' => $doc->enfermedadesAsociadas);
+			$doc->especialidad = $especialidad;
+			unset($doc->idEspecialidad);
+			unset($doc->enfermedadesAsociadas);
+		}
 		echo json_encode($data);
 	} 
 	catch(PDOException $e) {
