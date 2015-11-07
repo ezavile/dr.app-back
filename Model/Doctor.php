@@ -60,6 +60,35 @@ function doctorPostDoctor() {
 	}
 }
 
+
+function doctorPutDoctor() {
+	$request = \Slim\Slim::getInstance()->request();
+	$doc = json_decode($request->getBody());
+	$sql = "UPDATE doctor SET idEspecialidad=:idEspecialidad, imgPerfil=:imgPerfil, password=:password, nombre=:nombre, servicios=:servicios, telefono=:telefono, direccion=:direccion, coordenadas=:coordenadas, correo=:correo, foto1=:foto1, foto2=:foto2, foto3=:foto3 WHERE doctor='$doc->doctor'";
+	try {
+		$db = getConnection(); 
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("idEspecialidad", $doc->idEspecialidad);
+		$stmt->bindParam("imgPerfil", $doc->imgPerfil);
+		$stmt->bindParam("password", $doc->password);
+		$stmt->bindParam("nombre", $doc->nombre);
+		$stmt->bindParam("servicios", $doc->servicios);
+		$stmt->bindParam("telefono", $doc->telefono);
+		$stmt->bindParam("direccion", $doc->direccion);
+		$stmt->bindParam("coordenadas", $doc->coordenadas);
+		$stmt->bindParam("correo", $doc->correo);
+		$stmt->bindParam("foto1", $doc->foto1);
+		$stmt->bindParam("foto2", $doc->foto2);
+		$stmt->bindParam("foto3", $doc->foto3);
+		$stmt->execute();
+		$db = null;
+		echo json_encode($doc);
+	} catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+
 function doctoresByEspecialidad($esp) {
 	$sql_query = "SELECT * FROM doctor, especialidades WHERE doctor.idEspecialidad = especialidades.idEspecialidad AND doctor.idEspecialidad = '$esp'";
 	try {
@@ -69,6 +98,28 @@ function doctoresByEspecialidad($esp) {
 		$dbCon = null;
 		foreach ($data as $doc) {
 
+			$especialidad = array('idEspecialidad' => $doc->idEspecialidad, 'especialidad' => $doc->especialidad, 'enfermedadesAsociadas' => $doc->enfermedadesAsociadas);
+			$doc->especialidad = $especialidad;
+			unset($doc->idEspecialidad);
+			unset($doc->enfermedadesAsociadas);
+
+		}
+		echo json_encode($data);
+	} 
+	catch(PDOException $e) {
+		$answer = array( 'error' =>  $e->getMessage());
+		echo json_encode($answer);
+	}
+}
+
+function doctoresByEnfermedad($enfermedad) {
+	$sql_query = "SELECT * FROM doctor, especialidades WHERE doctor.idEspecialidad = especialidades.idEspecialidad AND especialidades.enfermedadesAsociadas LIKE '%$enfermedad%'";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$data  = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$dbCon = null;
+		foreach ($data as $doc) {
 			$especialidad = array('idEspecialidad' => $doc->idEspecialidad, 'especialidad' => $doc->especialidad, 'enfermedadesAsociadas' => $doc->enfermedadesAsociadas);
 			$doc->especialidad = $especialidad;
 			unset($doc->idEspecialidad);
@@ -226,4 +277,60 @@ function doctorGetCitas($id){
 	echo json_encode($citas);
 }
 
+
+
+function doctorGetMensajes($id){
+	$mensajes = array();
+	$sql_query = "SELECT 
+						paciente_doctor_mensajes.idMensaje as DoctorMensaje_idMensaje,
+						paciente_doctor_mensajes.paciente as DoctorMensaje_paciente,
+						paciente_doctor_mensajes.mensaje as DoctorMensaje_mensaje,
+						paciente_doctor_mensajes.fecha as DoctorMensaje_fecha,
+						paciente_doctor_mensajes.autor as DoctorMensaje_autor,
+						paciente.nombre as PacNombre,
+						paciente.imgPerfil as PacPerfil
+					FROM 
+						paciente,
+						paciente_doctor_mensajes
+					WHERE 
+						paciente_doctor_mensajes.paciente = paciente.paciente
+						AND
+						paciente_doctor_mensajes.doctor = '$id'
+					ORDER BY
+						paciente_doctor_mensajes.paciente asc, paciente_doctor_mensajes.fecha desc";
+	try {
+		$dbCon = getConnection();
+		$stmt   = $dbCon->query($sql_query);
+		$res  = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+		foreach ($res as $msj) {
+			$msj  = array(
+					'idMensaje' => $msj->DoctorMensaje_idMensaje,
+					'paciente' => array(
+										'paciente' => $msj->DoctorMensaje_paciente,
+										'nombre' => $msj->PacNombre,
+										'imgPerfil' => $msj->PacPerfil
+										), 
+					'mensaje' => $msj->DoctorMensaje_mensaje ,
+					'autor' => $msj->DoctorMensaje_autor ,
+					'fecha' => $msj->DoctorMensaje_fecha 
+					);
+			unset($msj->DoctorMensaje_idMensaje);
+			unset($msj->DoctorMensaje_paciente);
+			unset($msj->DoctorMensaje_mensaje);
+			unset($msj->DoctorMensaje_autor);
+			unset($msj->DoctorMensaje_fecha);
+			unset($msj->PacNombre);
+			unset($msj->PacPerfil);
+			array_push($mensajes, $msj);
+		}
+
+		$dbCon = null;
+	} 
+	catch(PDOException $e) {
+		$mensajes = array( 'error' =>  $e->getMessage());
+	}
+
+	echo json_encode($mensajes);
+}
 ?>

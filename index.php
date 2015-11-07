@@ -114,14 +114,17 @@ $app->put('/pacientes/citas', 'pacientePutCitas');
 $app->get('/especialidades', 'doctorGetEspecialidades');
 /* Crear un nuevo doctor */
 $app->post('/doctores', 'doctorPostDoctor');
+$app->put('/doctores', 'doctorPutDoctor');
 /* Obtener todos los doctores */
 $app->get('/doctores', 'doctorGetDoctores');
 /* Obtener los doctores de una especialidad */
 $app->get('/doctoresByEspecialidad/:especialidad', 'doctoresByEspecialidad');
+$app->get('/doctoresByEnfermedad/:enfermedad', 'doctoresByEnfermedad');
 /* Obtener los datos de un doctor */
 $app->get('/doctorById/:doctor', 'doctorById');
 $app->get('/doctores/citas/:doctor', 'doctorGetCitas');
 $app->get('/doctores/comentarios/:doctor', 'doctorGetComentarios');
+$app->get('/doctores/mensajes/:doctor', 'doctorGetMensajes');
 
 
 $app->put('/estatusCita', 'putEstatusCita');
