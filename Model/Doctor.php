@@ -1,7 +1,7 @@
 <?php
 
 function doctorGetDoctores() { 
-	$sql_query = "SELECT * FROM doctor";
+	$sql_query = "SELECT * FROM doctor ORDER BY RAND() LIMIT 4";
 	try {
 		$dbCon = getConnection();
 		$stmt   = $dbCon->query($sql_query);
