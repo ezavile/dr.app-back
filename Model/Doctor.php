@@ -60,11 +60,12 @@ function doctorPostDoctor() {
 		$stmt->bindParam("foto3", $doc->foto3);
 		$stmt->execute();
 		$db = null;
-		echo json_encode($doc);
+		$answer = array('estatus'=>'success', 'msj' => 'Te has registrado con éxito.', 'doctor' =>  $doc);
 	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
+		$msj = errorHandler($e->errorInfo[0], array('doctor','usuario'));
+		$answer = array('estatus'=>'error','msj' =>  $msj);
 	}
+	echo json_encode($answer);
 }
 
 

@@ -1,20 +1,20 @@
 <?php
 function pacientePostPaciente() {
 	$request = \Slim\Slim::getInstance()->request();
-	$doc = json_decode($request->getBody());
+	$pac = json_decode($request->getBody());
 	$sql = "INSERT INTO paciente (paciente, password, imgPerfil, nombre, correo, telefono) VALUES (:paciente, :password, :imgPerfil, :nombre, :correo, :telefono)";
 	try {
 		$db = getConnection(); 
 		$stmt = $db->prepare($sql);
-		$stmt->bindParam("paciente", $doc->paciente);
-		$stmt->bindParam("password", $doc->password);
-		$stmt->bindParam("imgPerfil", $doc->imgPerfil);
-		$stmt->bindParam("nombre", $doc->nombre);
-		$stmt->bindParam("correo", $doc->correo);
-		$stmt->bindParam("telefono", $doc->telefono);
+		$stmt->bindParam("paciente", $pac->paciente);
+		$stmt->bindParam("password", $pac->password);
+		$stmt->bindParam("imgPerfil", $pac->imgPerfil);
+		$stmt->bindParam("nombre", $pac->nombre);
+		$stmt->bindParam("correo", $pac->correo);
+		$stmt->bindParam("telefono", $pac->telefono);
 		$stmt->execute();
 		$db = null;
-		$answer = array('estatus'=>'success', 'msj' => 'Te has registrado con éxito.', 'paciente' =>  $doc);
+		$answer = array('estatus'=>'success', 'msj' => 'Te has registrado con éxito.', 'paciente' =>  $pac);
 	} catch(PDOException $e) {
 		$msj = errorHandler($e->errorInfo[0], array('paciente','usuario'));
 		$answer = array('estatus'=>'error','msj' =>  $msj);
