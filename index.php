@@ -59,11 +59,11 @@ function postMensaje(){
 		$stmt->execute();
 		$db = null;
 		$req->fecha = date_create()->format('Y-m-d H:i:s');
-		echo json_encode($req);
+		$answer = array('estatus'=>'success','msj'=>"¡Se ha enviado su mensaje!");
 	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
+		$answer = array('estatus'=>'error','msj'=>$e->getMessage());
 	}
+	echo json_encode($answer);
 }
 
 function putEstatusCita() {
@@ -94,6 +94,7 @@ $app->post('/login', 'login');
 $app->post('/pacientes', 'pacientePostPaciente');
 /*Actualizar un paciente*/
 $app->put('/pacientes', 'pacientePutPaciente');
+$app->delete('/pacientes', 'pacienteDeletePaciente');
 
 /* Obtener los datos de un paciente */
 $app->get('/pacienteById/:paciente', 'pacienteById');
@@ -109,6 +110,7 @@ $app->post('/pacientes/citas', 'pacientePostCita');
 $app->get('/pacientes/citas/:paciente', 'pacienteGetCitas');
 /* Modificar citas */
 $app->put('/pacientes/citas', 'pacientePutCitas');
+$app->delete('/pacientes/citas', 'pacienteDeleteCitas');
 
 //Doctor
 /* Obtener todas las especialidades */

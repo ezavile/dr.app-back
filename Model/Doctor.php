@@ -62,7 +62,7 @@ function doctorPostDoctor() {
 		$db = null;
 		$answer = array('estatus'=>'success', 'msj' => 'Te has registrado con éxito.', 'doctor' =>  $doc);
 	} catch(PDOException $e) {
-		$msj = errorHandler($e->errorInfo[0], array('doctor','usuario'));
+		$msj = errorHandler($e->errorInfo[1], array('doctor','usuario'));
 		$answer = array('estatus'=>'error','msj' =>  $msj);
 	}
 	echo json_encode($answer);

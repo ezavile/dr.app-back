@@ -1,4 +1,59 @@
 <?php
+
+function pacienteDeleteCitas(){
+	$request = \Slim\Slim::getInstance()->request();
+	$pac = json_decode($request->getBody());
+	$sql_query = "DELETE 
+					FROM 
+						paciente_doctor_citas
+					WHERE 
+						paciente = '$pac->paciente'
+						AND
+						fecha = '$pac->fecha'
+						AND
+						hora = '$pac->hora'
+						AND
+						doctor = '$pac->doctor'";
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql_query);
+		$stmt->bindParam("paciente", $pac->paciente);
+		$stmt->bindParam("fecha", $pac->fecha);
+		$stmt->bindParam("hora", $pac->hora);
+		$stmt->bindParam("doctor", $pac->doctor);
+		$stmt->execute();
+		$db = null;
+		$answer = array('estatus'=>'success', 'msj' => '¡Se ha eliminado correctamente la cita!');
+	} 
+	catch(PDOException $e) {
+		$answer = array('estatus'=>'error', 'msj' => $e->getMessage());
+	}
+	echo json_encode($answer);
+}
+
+function pacienteDeletePaciente(){
+	$request = \Slim\Slim::getInstance()->request();
+	$pac = json_decode($request->getBody());
+	$sql_query = "DELETE 
+					FROM 
+						paciente
+					WHERE 
+						paciente = '$pac->paciente'";
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql_query);
+		$stmt->bindParam("paciente", $pac->paciente);
+		$stmt->execute();
+		$db = null;
+		$answer = array('estatus'=>'success', 'msj' => '¡Tu usuario se ha dado de baja del sistema!');
+	} 
+	catch(PDOException $e) {
+		$msj = errorHandler($e->errorInfo[1], array('paciente'));
+		$answer = array('estatus'=>'error', 'msj' => $msj);
+	}
+	echo json_encode($answer);
+}
+
 function pacientePostPaciente() {
 	$request = \Slim\Slim::getInstance()->request();
 	$pac = json_decode($request->getBody());
@@ -16,7 +71,7 @@ function pacientePostPaciente() {
 		$db = null;
 		$answer = array('estatus'=>'success', 'msj' => 'Te has registrado con éxito.', 'paciente' =>  $pac);
 	} catch(PDOException $e) {
-		$msj = errorHandler($e->errorInfo[0], array('paciente','usuario'));
+		$msj = errorHandler($e->errorInfo[1], array('paciente','usuario'));
 		$answer = array('estatus'=>'error','msj' =>  $msj);
 	}
 	echo json_encode($answer);
@@ -40,11 +95,11 @@ function pacientePostCita(){
 		$stmt->bindParam("estatus", $req->estatus);
 		$stmt->execute();
 		$db = null;
-		echo json_encode($req);
+		$answer = array('estatus'=>'success', 'msj' => '¡Tu cita ha sido agendada!', 'cita' =>  $req);
 	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
+		$answer = array('estatus'=>'error','msj' =>  $e->getMessage());
 	}
+	echo json_encode($answer);
 }
 
 function pacientePostComentario(){
@@ -62,11 +117,11 @@ function pacientePostComentario(){
 		$stmt->execute();
 		$db = null;
 		$req->fecha = date_create()->format('Y-m-d H:i:s');
-		echo json_encode($req);
+		$answer = array('estatus'=>'success', 'msj' => '¡Se ha enviado su comentario!', 'comentario' =>  $req);
 	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
+		$answer = array('estatus'=>'error', 'msj' =>  $e->getMessage());
 	}
+	echo json_encode($answer);
 }
 
 function pacientePutPaciente() {
@@ -84,11 +139,12 @@ function pacientePutPaciente() {
 		$stmt->bindParam("telefono", $req->telefono);
 		$stmt->execute();
 		$db = null;
-		echo json_encode($req);
+		$answer = array('estatus'=>'success', 'msj' => '¡Se han realizados los cambios correctamente!', 'paciente' =>  $req);
 	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
+		$answer = array('estatus'=>'error', 'msj' =>  $e->getMessage());
 	}
+
+	echo json_encode($answer);
 }
 
 
