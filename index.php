@@ -1,5 +1,6 @@
 <?php 
 require 'Slim/Slim.php'; 
+require 'Helper/ErrorHandler.php';
 require 'Config/db.php';
 require 'Model/Doctor.php';
 require 'Model/Paciente.php';

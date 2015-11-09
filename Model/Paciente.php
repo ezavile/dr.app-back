@@ -16,7 +16,8 @@ function pacientePostPaciente() {
 		$db = null;
 		echo json_encode($doc);
 	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
+		$msj = errorHandler($e->errorInfo[0], array('paciente','usuario'));
+		$answer = array( 'error' =>  $msj);
 		echo json_encode($answer);
 	}
 }
