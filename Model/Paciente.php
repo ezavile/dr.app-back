@@ -14,12 +14,12 @@ function pacientePostPaciente() {
 		$stmt->bindParam("telefono", $doc->telefono);
 		$stmt->execute();
 		$db = null;
-		echo json_encode($doc);
+		$answer = array('estatus'=>'success', 'msj' => 'Te has registrado con éxito.', 'paciente' =>  $doc);
 	} catch(PDOException $e) {
 		$msj = errorHandler($e->errorInfo[0], array('paciente','usuario'));
-		$answer = array( 'error' =>  $msj);
-		echo json_encode($answer);
+		$answer = array('estatus'=>'error','msj' =>  $msj);
 	}
+	echo json_encode($answer);
 }
 
 function pacientePostCita(){
