@@ -12,8 +12,7 @@ function login() {
 		$dbCon = null;
 	} 
 	catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
+		$answer = array('estatus'=>'error','msj' =>  $e->getMessage());
 	}
 
 	$sql_query = "SELECT * FROM doctor WHERE doctor = '$usuario->usuario' AND password = '$usuario->password'";
@@ -24,24 +23,23 @@ function login() {
 		$dbCon = null;
 	} 
 	catch(PDOException $e) {
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
+		$answer = array('estatus'=>'error','msj' =>  $e->getMessage());
 	}
 
 	if(count($paciente) > 0){
 		$paciente = $paciente[0];
-		$paciente->tipoUsuario = 'paciente';
-		//$paciente->citas = pacienteGetCitas($usuario->usuario);
-		//$paciente->mensajes = pacienteGetMensajes($usuario->usuario);
-		echo json_encode($paciente);
+		$answer = array('estatus'=>'success','msj'=>"¡Bienvenido $paciente->nombre!",'tipoUsuario'=>'paciente','paciente'=>$paciente);
 	} else {
 		if(count($doctor) > 0){
-			$doctor[0]->tipoUsuario = 'doctor';
-			echo json_encode($doctor[0]);
+			$doctor = $doctor[0];
+			$answer = array('estatus'=>'success','msj'=>"¡Bienvenido $doctor->nombre!",'tipoUsuario'=>'doctor','doctor'=>$doctor);
 		} else {
 			$answer = array( 'tipoUsuario' =>  null);
-			echo json_encode($answer);
+			$answer = array('estatus'=>'error','msj'=>'Usuario y/o contraseñas incorrectas. Por Favor intente de nuevo.');
 		}
 	}
+
+	echo json_encode($answer);
 }
 
 ?>
