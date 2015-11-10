@@ -1,36 +1,5 @@
 <?php
 
-function pacienteDeleteCitas(){
-	$request = \Slim\Slim::getInstance()->request();
-	$pac = json_decode($request->getBody());
-	$sql_query = "DELETE 
-					FROM 
-						paciente_doctor_citas
-					WHERE 
-						paciente = '$pac->paciente'
-						AND
-						fecha = '$pac->fecha'
-						AND
-						hora = '$pac->hora'
-						AND
-						doctor = '$pac->doctor'";
-	try {
-		$db = getConnection();
-		$stmt = $db->prepare($sql_query);
-		$stmt->bindParam("paciente", $pac->paciente);
-		$stmt->bindParam("fecha", $pac->fecha);
-		$stmt->bindParam("hora", $pac->hora);
-		$stmt->bindParam("doctor", $pac->doctor);
-		$stmt->execute();
-		$db = null;
-		$answer = array('estatus'=>'success', 'msj' => '¡Se ha eliminado correctamente la cita!');
-	} 
-	catch(PDOException $e) {
-		$answer = array('estatus'=>'error', 'msj' => $e->getMessage());
-	}
-	echo json_encode($answer);
-}
-
 function pacienteDeletePaciente(){
 	$request = \Slim\Slim::getInstance()->request();
 	$pac = json_decode($request->getBody());
@@ -292,21 +261,23 @@ function pacienteGetCitas($id){
 function pacientePutCitas() {
 	$request = \Slim\Slim::getInstance()->request();
 	$req = json_decode($request->getBody());
-
-	$sql = "UPDATE paciente_doctor_citas SET fecha=:fecha, hora=:hora, asunto=:asunto WHERE paciente='$req->paciente' AND doctor='$req->doctor' AND fecha='$req->fecha' AND hora='$req->hora'";
+	$req->estatus = "EN ESPERA";
+	$sql = "UPDATE paciente_doctor_citas SET fecha=:fecha, hora=:hora, asunto=:asunto, estatus=:estatus WHERE paciente='$req->paciente' AND doctor='$req->doctor' AND fecha='$req->fecha' AND hora='$req->hora'";
 	try {
 		$db = getConnection();
 		$stmt = $db->prepare($sql);
 		$stmt->bindParam("fecha", $req->newFecha);
 		$stmt->bindParam("hora", $req->newHora);
 		$stmt->bindParam("asunto", $req->asunto);
+		$stmt->bindParam("estatus", $req->estatus);
 		$stmt->execute();
 		$db = null;
-		echo json_encode($req);
+		$answer = array('estatus'=>'success', 'msj' => '¡Se han realizados los cambios correctamente!', 'cita' =>  $req);
 	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
+		$answer = array('estatus'=>'error', 'msj' =>  $e->getMessage());
 	}
+
+	echo json_encode($answer);
 }
 
 ?>

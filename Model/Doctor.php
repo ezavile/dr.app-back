@@ -1,5 +1,28 @@
 <?php
 
+function doctorDeleteDoctor(){
+	$request = \Slim\Slim::getInstance()->request();
+	$doc = json_decode($request->getBody());
+	$sql_query = "DELETE 
+					FROM 
+						doctor
+					WHERE 
+						doctor = '$doc->doctor'";
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql_query);
+		$stmt->bindParam("doctor", $doc->doctor);
+		$stmt->execute();
+		$db = null;
+		$answer = array('estatus'=>'success', 'msj' => '¡Tu usuario se ha dado de baja del sistema!');
+	} 
+	catch(PDOException $e) {
+		$msj = errorHandler($e->errorInfo[1], array('doctor'));
+		$answer = array('estatus'=>'error', 'msj' => $msj);
+	}
+	echo json_encode($answer);
+}
+
 function doctorGetDoctores() { 
 	$sql_query = "SELECT * FROM doctor, especialidades WHERE doctor.idEspecialidad=especialidades.idEspecialidad GROUP BY doctor.doctor ORDER BY RAND() LIMIT 4";
 	try {
@@ -90,11 +113,12 @@ function doctorPutDoctor() {
 		$stmt->bindParam("foto3", $doc->foto3);
 		$stmt->execute();
 		$db = null;
-		echo json_encode($doc);
+		$answer = array('estatus'=>'success', 'msj' => '¡Se han realizados los cambios correctamente!', 'doctor' =>  $doc);
 	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
-		echo json_encode($answer);
+		$answer = array('estatus'=>'error', 'msj' =>  $e->getMessage());
 	}
+
+	echo json_encode($answer);
 }
 
 function doctoresByEspecialidad($esp) {

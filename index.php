@@ -2,6 +2,7 @@
 require 'Slim/Slim.php'; 
 require 'Helper/ErrorHandler.php';
 require 'Config/db.php';
+require 'Helper/Helper.php';
 require 'Model/Doctor.php';
 require 'Model/Paciente.php';
 require 'Model/Login.php';
@@ -27,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
         header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
 }
-
 function upload(){
 	if ( !empty( $_FILES ) ) {
 		$tempPath = $_FILES[ 'file' ][ 'tmp_name' ];
@@ -38,49 +38,6 @@ function upload(){
 		echo json_encode($answer);
 	} else {
 		$answer = array( 'error' => 'No se subio la imagen correctamente');
-		echo json_encode($answer);
-	}
-}
-
-
-function postMensaje(){
-	$request = \Slim\Slim::getInstance()->request();
-	$req = json_decode($request->getBody());
-	$sql = "INSERT INTO paciente_doctor_mensajes(doctor, paciente, fecha, mensaje, autor) VALUES (:doctor, :paciente, :fecha, :mensaje, :autor)";
-
-	try {
-		$db = getConnection(); 
-		$stmt = $db->prepare($sql);
-		$stmt->bindParam("doctor", $req->doctor);
-		$stmt->bindParam("paciente", $req->paciente);
-		$stmt->bindParam("fecha", date_create()->format('Y-m-d H:i:s'));
-		$stmt->bindParam("mensaje", $req->mensaje);
-		$stmt->bindParam("autor", $req->autor);
-		$stmt->execute();
-		$db = null;
-		$req->fecha = date_create()->format('Y-m-d H:i:s');
-		$answer = array('estatus'=>'success','msj'=>"¡Se ha enviado su mensaje!");
-	} catch(PDOException $e) {
-		$answer = array('estatus'=>'error','msj'=>$e->getMessage());
-	}
-	echo json_encode($answer);
-}
-
-function putEstatusCita() {
-	$request = \Slim\Slim::getInstance()->request();
-	$req = json_decode($request->getBody());
-
-	$sql = "UPDATE paciente_doctor_citas SET estatus=:estatus WHERE paciente='$req->paciente' AND doctor='$req->doctor' AND fecha='$req->fecha' AND hora='$req->hora'";
-
-	try {
-		$db = getConnection();
-		$stmt = $db->prepare($sql);
-		$stmt->bindParam("estatus", $req->estatus);
-		$stmt->execute();
-		$db = null;
-		echo json_encode($req);
-	} catch(PDOException $e) {
-		$answer = array( 'error' =>  $e->getMessage());
 		echo json_encode($answer);
 	}
 }
@@ -110,7 +67,6 @@ $app->post('/pacientes/citas', 'pacientePostCita');
 $app->get('/pacientes/citas/:paciente', 'pacienteGetCitas');
 /* Modificar citas */
 $app->put('/pacientes/citas', 'pacientePutCitas');
-$app->delete('/pacientes/citas', 'pacienteDeleteCitas');
 
 //Doctor
 /* Obtener todas las especialidades */
@@ -118,6 +74,7 @@ $app->get('/especialidades', 'doctorGetEspecialidades');
 /* Crear un nuevo doctor */
 $app->post('/doctores', 'doctorPostDoctor');
 $app->put('/doctores', 'doctorPutDoctor');
+$app->delete('/doctores', 'doctorDeleteDoctor');
 /* Obtener todos los doctores */
 $app->get('/doctores', 'doctorGetDoctores');
 /* Obtener los doctores de una especialidad */
@@ -130,7 +87,8 @@ $app->get('/doctores/comentarios/:doctor', 'doctorGetComentarios');
 $app->get('/doctores/mensajes/:doctor', 'doctorGetMensajes');
 
 
-$app->put('/estatusCita', 'putEstatusCita');
+$app->put('/citas', 'putEstatusCita');
+$app->delete('/citas', 'deleteCitas');
 /* Crear un nuevo mensaje */
 $app->post('/mensajes', 'postMensaje');
 
